@@ -42,11 +42,17 @@ class HomeController < ApplicationController
       return
     end
 
-    numbers.each do |number|
-      CallExecutionJob.perform_later(number)
+    # Process calls with a small delay between each to avoid rate limiting
+    numbers.each_with_index do |number, index|
+      CallExecutionJob.set(wait: (index * 0.5).seconds).perform_later(number)
     end
 
-    redirect_to root_path, notice: "Initiated #{numbers.count} calls"
+    redirect_to root_path, notice: "Initiated #{numbers.count} calls (processing with delays to avoid rate limits)"
+  end
+
+  def clear_logs
+    CallLogService.clear
+    redirect_to root_path, notice: "Call logs cleared successfully"
   end
 end
 
