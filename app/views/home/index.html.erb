@@ -1,0 +1,99 @@
+<!-- AI Prompt Interface -->
+<div class="section">
+  <h2>🤖 AI Prompt Interface</h2>
+  <p>Type a command like "Call to +91 9876543210" or "Call to 1800-555-0006"</p>
+  
+  <%= form_with url: ai_prompt_path, method: :post, local: true do |f| %>
+    <%= f.text_field :command, placeholder: "Call to +15005550006", style: "width: 100%; padding: 12px; margin-bottom: 10px;" %>
+    <%= f.submit "Make Call", class: "btn" %>
+  <% end %>
+  
+  <div class="test-numbers-hint">
+    <strong>💡 Test Numbers:</strong> Use Twilio test numbers like <code>+15005550006</code> (always answers), 
+    <code>+15005550001</code> (busy), <code>+15005550002</code> (no answer)
+  </div>
+</div>
+
+<!-- Bulk Upload -->
+<div class="section">
+  <h2>📋 Bulk Phone Number Upload</h2>
+  <p>Paste up to 100 phone numbers (one per line) or use test numbers</p>
+  
+  <%= form_with url: upload_numbers_path, method: :post, local: true do |f| %>
+    <%= f.text_area :numbers, 
+        placeholder: "+15005550006\n+15005550001\n+15005550002\n+15005550006\n...", 
+        rows: 10 %>
+    <%= f.submit "Upload & Call All", class: "btn" %>
+  <% end %>
+  
+  <div class="test-numbers-hint">
+    <strong>💡 Quick Test:</strong> Generate 100 test numbers by repeating Twilio test numbers. 
+    Mix <code>+15005550006</code> (success) with others (failures) for realistic testing.
+  </div>
+</div>
+
+<!-- Statistics -->
+<div class="section">
+  <h2>📊 Statistics</h2>
+  <div class="stats">
+    <div class="stat-card">
+      <h3><%= @stats[:total] %></h3>
+      <p>Total Calls</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @stats[:completed] %></h3>
+      <p>Completed</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @stats[:answered] %></h3>
+      <p>Answered</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @stats[:failed] %></h3>
+      <p>Failed</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @stats[:success_rate] %>%</h3>
+      <p>Success Rate</p>
+    </div>
+  </div>
+</div>
+
+<!-- Call Logs -->
+<div class="section">
+  <h2>📝 Call Logs</h2>
+  
+  <% if @logs.empty? %>
+    <p style="color: #666; text-align: center; padding: 40px;">No calls yet. Make your first call above!</p>
+  <% else %>
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>Phone Number</th>
+          <th>Status</th>
+          <th>Duration (sec)</th>
+          <th>Call SID</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @logs.each do |log| %>
+          <tr>
+            <td><code><%= log[:phone] %></code></td>
+            <td>
+              <span class="status-badge status-<%= log[:status] %>">
+                <%= log[:status].humanize %>
+              </span>
+            </td>
+            <td><%= log[:duration] %></td>
+            <td><code style="font-size: 0.85em;"><%= log[:call_sid] || 'N/A' %></code></td>
+            <td><%= log[:created_at].strftime("%H:%M:%S") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+
+
+
