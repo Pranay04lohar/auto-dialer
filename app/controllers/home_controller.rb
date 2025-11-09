@@ -3,6 +3,9 @@ class HomeController < ApplicationController
   def index
     @logs = CallLogService.all.reverse
     @stats = CallLogService.stats
+    
+    # Check if any logs have warnings (indicates test credentials with real numbers)
+    @using_test_credentials = @logs.any? { |log| log[:warning].present? && log[:warning].include?("test credentials") }
   end
 
   def ai_prompt

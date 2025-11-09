@@ -31,9 +31,25 @@ class CallStatusCheckJob < ApplicationJob
       puts "=" * 50
       
     rescue Twilio::REST::RestError => e
-      # If using test credentials, simulate status based on test number
-      if e.code == 20008 || e.message.include?("Test Account")
+      # If using test credentials, only simulate for test numbers
+      if (e.code == 20008 || e.message.include?("Test Account")) && phone_number.start_with?('+1500555')
         simulate_test_status(call_sid, phone_number)
+      elsif e.code == 20008 || e.message.include?("Test Account")
+        # Real number with test credentials - can't make real calls
+        warning_message = "⚠️ Using test credentials with real number! Test credentials don't make real calls. Switch to LIVE credentials in .env to make real calls."
+        puts "=" * 50
+        puts "WARNING: Using test credentials with real number!"
+        puts "Test credentials don't make real calls."
+        puts "Switch to LIVE credentials in .env to make real calls."
+        puts "=" * 50
+        CallLogService.update_status(
+          call_sid: call_sid,
+          status: 'failed',
+          duration: 0,
+          to: phone_number,
+          from: ENV['TWILIO_PHONE_NUMBER'],
+          warning: warning_message
+        )
       else
         puts "Failed to check status for #{call_sid}: #{e.message}"
       end

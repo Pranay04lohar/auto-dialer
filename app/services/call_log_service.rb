@@ -3,13 +3,14 @@ require 'securerandom'
 class CallLogService
   @@logs = []  # Class variable (in-memory storage)
   
-  def self.add(phone_number, call_sid, status = 'initiated')
+  def self.add(phone_number, call_sid, status = 'initiated', warning = nil)
     log_entry = {
       id: SecureRandom.hex(8),
       phone: phone_number,
       call_sid: call_sid,
       status: status,
       duration: 0,
+      warning: warning,
       created_at: Time.now,
       updated_at: Time.now
     }
@@ -20,7 +21,7 @@ class CallLogService
     log_entry
   end
   
-  def self.update_status(call_sid:, status:, duration: 0, to: nil, from: nil)
+  def self.update_status(call_sid:, status:, duration: 0, to: nil, from: nil, warning: nil)
     log_entry = @@logs.find { |log| log[:call_sid] == call_sid }
     
     if log_entry
@@ -28,6 +29,7 @@ class CallLogService
       log_entry[:duration] = duration
       log_entry[:to] = to if to
       log_entry[:from] = from if from
+      log_entry[:warning] = warning if warning
       log_entry[:updated_at] = Time.now
     end
     

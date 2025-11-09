@@ -1,3 +1,9 @@
+<% if @using_test_credentials %>
+  <div class="alert alert-warning" style="background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    <strong>⚠️ Test Credentials Detected:</strong> You're using Twilio test credentials. Test credentials don't make real calls to real numbers. Switch to LIVE credentials in .env to make real calls.
+  </div>
+<% end %>
+
 <!-- AI Prompt Interface -->
 <div class="section">
   <h2>🤖 AI Prompt Interface</h2>
@@ -92,6 +98,12 @@
               <span class="status-badge status-<%= log[:status] %>">
                 <%= log[:status].humanize %>
               </span>
+              <% if log[:warning] %>
+                <br>
+                <span style="color: #dc3545; font-size: 0.85em; font-weight: 600; margin-top: 5px; display: inline-block;">
+                  <%= log[:warning] %>
+                </span>
+              <% end %>
             </td>
             <td><%= log[:duration] %></td>
             <td><code style="font-size: 0.85em;"><%= log[:call_sid] || 'N/A' %></code></td>
